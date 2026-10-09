@@ -1,6 +1,9 @@
+import os
 import streamlit as st
 import requests
 import time
+
+API_BASE_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 
 # ---------- PAGE CONFIG ----------
 
@@ -1069,7 +1072,7 @@ else:
             with st.spinner("🔄  Routing through LangGraph agents…"):
                 try:
                     response = requests.post(
-                        "http://127.0.0.1:8000/chat",
+                        f"{API_BASE_URL}/chat",
                         json={
                             "question": question,
                             "email":    st.session_state.email,
@@ -1077,6 +1080,7 @@ else:
                         },
                         timeout=60
                     )
+                    response.raise_for_status()
                     data = response.json()
                     st.session_state.chat_history.append({
                         "question":  question,
@@ -1158,16 +1162,17 @@ else:
             if st.button("📧  Approve & Send Email", use_container_width=True):
                 with st.spinner("Triggering n8n webhook…"):
                     try:
-                        requests.post(
-                            "http://127.0.0.1:8000/send-email",
+                        response = requests.post(
+                            f"{API_BASE_URL}/send-email",
                             json={
                                 "question": last["question"],
-                                "answer":   last["answer"],
-                                "email":    st.session_state.email,
-                                "name":     st.session_state.name
+                                "answer": last["answer"],
+                                "email": st.session_state.email,
+                                "name": st.session_state.name
                             },
                             timeout=30
                         )
+                        response.raise_for_status()
                         st.session_state.email_sent = True
                         st.rerun()
                     except Exception as e:
@@ -1184,7 +1189,7 @@ else:
         if st.session_state.email_sent:
             st.markdown("""
             <div class="email-banner">
-                ✅ &nbsp; Response approved and dispatched via n8n → Gmail successfully!
+                ✅ &nbsp; Webhook request accepted. Check the n8n workflow to confirm email delivery.
             </div>
             """, unsafe_allow_html=True)
 
