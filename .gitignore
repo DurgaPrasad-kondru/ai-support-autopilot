@@ -1,0 +1,27 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment variables
+.env
+
+# Vector database
+chroma_db/
+
+# Streamlit cache
+.streamlit/
+
+# Node modules
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
